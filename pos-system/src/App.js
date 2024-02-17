@@ -8,6 +8,7 @@ import ProtectedRoutes from "./utill/ProtectedRoutes";
 import Home from "./components/Home";
 import Item from "./components/Item";
 import Category from "./components/Category";
+import SingleProduct from "./components/SingleProduct";
 
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route element={<ProtectedRoutes/>}>
         <Route index element={<Home/>}/>
         <Route path="/item" element={<Item/>}/>
+        <Route path="/items/:id" element={<SingleProduct/>}/>
         <Route path="/category" element={<Category/>}/>
         
         </Route>
