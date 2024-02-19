@@ -1,8 +1,10 @@
 
+
 const NevBar = () => {
 
     return (
         <>
+       
           <nav class="navbar navbar-expand-lg bg-secondary-subtle">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">
@@ -22,12 +24,21 @@ const NevBar = () => {
               <a class="nav-link" href="/item">
                 Items
               </a>  
+              <a class="nav-link" href="/stock">
+                Stock
+              </a> 
+              <a class="nav-link" href="/checkout">
+                Checkout
+              </a> 
             </div>
           </div>
         </div>
         <div class="justify p-3">
               <a class="nav-link" href="/login">Login</a>
               </div>
+           
+             
+              
       </nav>
         
         </>

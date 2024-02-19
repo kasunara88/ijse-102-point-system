@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 
+
 const LoginPage = () => {
 
     const [username, setUsername] = useState("");
@@ -18,7 +19,7 @@ const LoginPage = () => {
         if(response.status === 200) {
             localStorage.setItem("token", response.data);
             alert("Login Successful");
-            navigate("/");
+            navigate("/item");
 
         }else{
             alert("Login Failed");
@@ -28,7 +29,9 @@ const LoginPage = () => {
     }
 
     return (
+      
         <div className="login-box">
+    
         <div className="text-center mb-4">
           <h1 className="text-center font-bold text-3xl">User Login</h1>
         </div>
