@@ -9,12 +9,14 @@ import Home from "./components/Home";
 import Item from "./components/Item";
 import Category from "./components/Category";
 import SingleProduct from "./components/SingleProduct";
+import NevBar from "./components/NevBar";
 
 
 function App() {
   return (
     <BrowserRouter>
     <Routes>
+      <Route path="/nevbar" element={<NevBar/>}/>
         <Route element={<ProtectedRoutes/>}>
         <Route index element={<Home/>}/>
         <Route path="/item" element={<Item/>}/>

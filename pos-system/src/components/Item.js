@@ -1,46 +1,34 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import NevBar from "./NevBar";
 
 const Item = () => {
-  const navigate = useNavigate();
-
   const [item, setItem] = useState([]);
   const [itemName, setItemName] = useState("");
   const [brand, setBrand] = useState("");
   const [qty, setQty] = useState(0);
   const [unit, setUnit] = useState("");
   const [price, setPrice] = useState("");
-  const [category, setCategory] = useState("");
-
-  const getItem = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/items");
-      setItemName(response.data);
-      console.log(response.data);
-    } catch (error) {
-      if (error.response === 401) {
-        navigate("/login");
-      }
-    }
-  };
-
-  const getCategory = async () => {
-    try {
-      const response = await axios.get("http://localhost:8080/categories");
-      setCategory(response.data);
-      console.log(response.data);
-    } catch (error) {
-      if (error.response === 401) {
-        navigate("/login");
-      }
-    }
+  const [categoryId, setCategoryId] = useState(null);
+  // const [category, setCategory] = useState([]);
+  const [allCategory, setAllCategory] = useState([]);
+  
+  const getAllCategory = async () => {
+    await axios
+      .get("http://localhost:8080/categories")
+      .then((response) => {
+        // console.log("Received data:", response.data);
+        setAllCategory(response.data);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
   };
 
   useEffect(() => {
-    getCategory();
-    getItem();
-  }, []);
+    getAllCategory();
+
+  },[]);
 
   const handleItemName = (event) => {
     setItemName(event.target.value);
@@ -63,56 +51,43 @@ const Item = () => {
   };
 
   const handleCategory = (event) => {
-    setCategory(event.target.value);
+    setCategoryId(event.target.value);
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const data = {
-      name: itemName,
-      brand: brand,
-      qty: qty,
-      unit: unit,
-      price: price,
-      category: category,
+    const data = { 
+        name: itemName,
+        brand: brand,
+        unit: unit,
+        qty: qty,
+        price: price,
+        category: categoryId
     };
-    fetch("http://localhost:8080/items", {
-      method: 'POST',
-      headers: {
-        "Accept": "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    })
+    console.log(data);
+   await axios
+      .post("http://localhost:8080/items", data)
       .then((response) => {
-        return response.json();
-      })
-      .then((data) => {
-        setItem([...item, data]);
+        console.log("Received data:", response.data);
+        setItem(response.data);
+        window.alert("Item created successfully!");
       })
       .catch((error) => {
-        console.error("Error:", error);
+        console.error("Error creating item:", error);
       });
   };
 
   return (
     <>
+    <NevBar/>
       <div>
-        <h1>Items</h1>
-        <ol>
-          {item &&
-            item.map((item) => (
-              <li key={item.id}>
-                {item.id} {item.name}
-              </li>
-            ))}
-        </ol>
+        <h1>Item Manage</h1>
       </div>
 
       <form className="p-3 justify-content-start" onSubmit={handleSubmit}>
         <div className="row mb-3">
-          <label for="name" class="col-sm-2 col-form-label">
+          <label for="name" className="col-sm-2 col-form-label">
             Name
           </label>
           <div class="col-sm-10">
@@ -120,7 +95,7 @@ const Item = () => {
               type="text"
               name="name"
               id="name"
-              class="form-control w-25"
+              className="form-control w-25"
               required
               onChange={handleItemName}
             />
@@ -128,15 +103,15 @@ const Item = () => {
         </div>
 
         <div className="row mb-3">
-          <label for="brand" class="col-sm-2 col-form-label">
+          <label for="brand" className="col-sm-2 col-form-label">
             Brand
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="text"
               name="brand"
               id="brand"
-              class="form-control w-25"
+              className="form-control w-25"
               required
               onChange={handleBrand}
             />
@@ -144,15 +119,15 @@ const Item = () => {
         </div>
 
         <div className="row mb-3">
-          <label for="unit" class="col-sm-2 col-form-label">
+          <label for="unit" className="col-sm-2 col-form-label">
             Unit
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="text"
               name="unit"
               id="unit"
-              class="form-control w-25"
+              className="form-control w-25"
               required
               onChange={handleUnit}
             />
@@ -163,12 +138,12 @@ const Item = () => {
           <label for="quantity" class="col-sm-2 col-form-label">
             Quantity
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="number"
               name="quantity"
               id="quantity"
-              class="form-control w-25"
+              className="form-control w-25"
               required
               onChange={handleQty}
             />
@@ -179,12 +154,12 @@ const Item = () => {
           <label for="price" class="col-sm-2 col-form-label">
             Price
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <input
               type="number"
               name="price"
               id="price"
-              class="form-control w-25"
+              className="form-control w-25"
               required
               onChange={handlePrice}
             />
@@ -195,21 +170,24 @@ const Item = () => {
           <label for="category" class="col-sm-2 col-form-label">
             Category
           </label>
-          <div class="col-sm-10">
+          <div className="col-sm-10">
             <select required onChange={handleCategory}>
               <option>Please Select</option>
-              {category &&
-                category.map((category) => (
-                  <option key={category.id}>{category.name}</option>
+              {allCategory &&           
+                allCategory.map((categories) => (
+                  
+                  <option key={categories.itemCategoryId}>{categories.categoryName}</option>
                 ))}
             </select>
           </div>
         </div>
+
         <div>
           <button className="btn btn-primary " type="submit">
             Add New Item
           </button>
         </div>
+        
       </form>
     </>
   );
