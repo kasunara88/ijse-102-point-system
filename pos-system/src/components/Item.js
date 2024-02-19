@@ -1,33 +1,59 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axios, { all } from "axios";
 import NevBar from "./NevBar";
 
+
 const Item = () => {
-  const [item, setItem] = useState([]);
+  const [item, setItem] = useState(null);
+  const [categories, setCategories] = useState(null);
+  const [allItem, setAllItem] = useState([]);
+
   const [itemName, setItemName] = useState("");
   const [brand, setBrand] = useState("");
-  const [qty, setQty] = useState(0);
+  const [qty, setQty] = useState("");
   const [unit, setUnit] = useState("");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState(null);
-  // const [category, setCategory] = useState([]);
-  const [allCategory, setAllCategory] = useState([]);
   
-  const getAllCategory = async () => {
+  const getItem = async () => {
+   try {
+    const response = await axios.get(
+      "http://localhost:8080/items"
+    );
+    setItem(response.data);
+    //console.log(response.data);
+   } catch (error) {
+    console.error("Eror fetching Items", error)
+   }
+  }
+
+  const getCategory = async () => {
+    try {
+      const response = await axios.get(
+        "http://localhost:8080/categories"
+      );
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }
+
+  const gettAllItem = async () => {
     await axios
-      .get("http://localhost:8080/categories")
+      .get("http://localhost:8080/items")
       .then((response) => {
-        // console.log("Received data:", response.data);
-        setAllCategory(response.data);
+      console.log("Received data:", response.data);
+        setAllItem(response.data);
       })
       .catch((error) => {
         console.error("Error:", error);
       });
-  };
+  }
 
   useEffect(() => {
-    getAllCategory();
-
+    getCategory();
+    getItem();
+    gettAllItem();
   },[]);
 
   const handleItemName = (event) => {
@@ -63,13 +89,13 @@ const Item = () => {
         unit: unit,
         qty: qty,
         price: price,
-        category: categoryId
+        category_Id: categoryId
     };
-    console.log(data);
+  
    await axios
       .post("http://localhost:8080/items", data)
       .then((response) => {
-        console.log("Received data:", response.data);
+        // console.log("Received data:", response.data);
         setItem(response.data);
         window.alert("Item created successfully!");
       })
@@ -78,9 +104,45 @@ const Item = () => {
       });
   };
 
+  const handleDelete = async (id) => {
+    await axios
+      .delete(`http://localhost:8080/items/${id}`)
+      .then((response) => {
+        //console.log("Received data:", response);
+        gettAllItem();
+        alert("Category deleted successfully!");
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleEdit = async (id) => {
+    const data = { 
+      name: itemName,
+      brand: brand,
+      unit: unit,
+      qty: qty,
+      price: price,
+      // category_Id: categoryId
+  };
+
+    await axios
+      .put(`http://localhost:8080/items/${id}`, data)
+      .then((response) => {
+        window.alert("Category updated successfully!");
+        gettAllItem();
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
   return (
     <>
     <NevBar/>
+    <div>
+      <div>
       <div>
         <h1>Item Manage</h1>
       </div>
@@ -95,6 +157,7 @@ const Item = () => {
               type="text"
               name="name"
               id="name"
+              placeholder="Item Name"
               className="form-control w-25"
               required
               onChange={handleItemName}
@@ -111,6 +174,7 @@ const Item = () => {
               type="text"
               name="brand"
               id="brand"
+              placeholder="Brand Name"
               className="form-control w-25"
               required
               onChange={handleBrand}
@@ -127,6 +191,7 @@ const Item = () => {
               type="text"
               name="unit"
               id="unit"
+              placeholder="Unit"
               className="form-control w-25"
               required
               onChange={handleUnit}
@@ -143,6 +208,7 @@ const Item = () => {
               type="number"
               name="quantity"
               id="quantity"
+              placeholder="Quantity"
               className="form-control w-25"
               required
               onChange={handleQty}
@@ -159,6 +225,7 @@ const Item = () => {
               type="number"
               name="price"
               id="price"
+              placeholder="Price"
               className="form-control w-25"
               required
               onChange={handlePrice}
@@ -173,11 +240,12 @@ const Item = () => {
           <div className="col-sm-10">
             <select required onChange={handleCategory}>
               <option>Please Select</option>
-              {allCategory &&           
-                allCategory.map((categories) => (
-                  
-                  <option key={categories.itemCategoryId}>{categories.categoryName}</option>
-                ))}
+              {categories && categories.map((category) => (
+                <option key={category.itemCategoryId} value={category.itemCategoryId}>
+                  {category.categoryName}
+                </option>
+              ))}
+              
             </select>
           </div>
         </div>
@@ -189,6 +257,54 @@ const Item = () => {
         </div>
         
       </form>
+      </div>
+      <div className="col-md-6">
+      <h3>Item Table</h3>
+          <table className="table table-success table-striped text-center">
+            <thead>
+              <tr>
+                <th>Item Id</th>
+                {/* <th>Category Id</th> */}
+                <th>Name</th>
+                <th>Brand</th>
+                <th>Unit</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th colspan="2">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {allItem &&
+                allItem.map((items) => (
+                  <tr key={items.itemId}>
+                    <td>{items.itemId}</td>
+                    <td>{items.name}</td>
+                    <td>{items.brand}</td>
+                    <td>{items.unit}</td>
+                    <td>{items.qty}</td>
+                    <td>{items.price}</td>
+                    <td>
+                      <button
+                        className="btn btn-success text-end"
+                        onClick={() => handleEdit(items.itemId)}
+                      >
+                        Edit
+                      </button>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-danger text-end"
+                        onClick={() => handleDelete(items.itemId)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+      </div>
+      </div>
     </>
   );
 };

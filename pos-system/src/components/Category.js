@@ -14,8 +14,9 @@ const Category = () => {
       const response = await axios.get(
         `http://localhost:8080/categories/${param.id}`
       );
-      console.log("Received data:", response.data);
+      
       setCategory(response.data);
+      console.log("Received data:", response.data);
     } catch (error) {
       console.error("Error fetching category:", error);
     }
@@ -25,7 +26,7 @@ const Category = () => {
     await axios
       .get("http://localhost:8080/categories")
       .then((response) => {
-        // console.log("Received data:", response.data);
+      console.log("Received data:", response.data);
         setAllCategory(response.data);
       })
       .catch((error) => {
@@ -66,7 +67,7 @@ const Category = () => {
       .delete(`http://localhost:8080/categories/${id}`)
       .then((response) => {
         console.log("Received data:", response);
-        // getAllCategory();
+        getAllCategory();
         alert("Category deleted successfully!");
       })
       .catch((error) => {
